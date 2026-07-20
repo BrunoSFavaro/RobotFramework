@@ -4,6 +4,7 @@ Library    SSHLibrary
 Library    String
 Library    OperatingSystem
 Library    Process
+Variables  local_env.py
 
 *** Keywords ***
 
@@ -36,7 +37,7 @@ Fechar conexao telnet
 Abrir SSH remoto
     [Arguments]                   ${IP}  ${USER}  ${PASS}
     Log  message=Abrindo conexão SSH com ${IP}
-    SSHLibrary.Open Connection    ${IP}  term_type=ansi  prompt=$
+    SSHLibrary.Open Connection    ${IP}  term_type=ansi  prompt=REGEXP:.*[$#]
     SSHLibrary.Login              ${USER}  ${PASS}
 
     Log  message=Padronizando o terminal
@@ -112,7 +113,7 @@ Limpar ambiente
 Configuracao CTPE
     [Arguments]    ${NTL}  ${TBR}  ${FAR}  ${RCC}  ${CRE}
     SSHLibrary.Write Bare                      CNTLDS:ISV=cct_ctpe,NTL="${NTL}",TBR=${TBR},FAR=${FAR},RCC=${RCC},CRE=${CRE};
-    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO NAO ASSOCIADO)
+    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO JA ASSOCIADO)
     SSHLibrary.Read Until                      expected=<
     SSHLibrary.Write Bare                      INTLDS:ISV=cct_ctpe,PDI="${NTL}";
     SSHLibrary.Read Until                      expected=NTL = ${NTL}
@@ -122,3 +123,18 @@ Desprogramar servico 1
     [Arguments]    ${ISV}  ${NTL}
     SSHLibrary.Write Bare                      SNTLDS:ISV=${ISV},NTL="${NTL}";
     SSHLibrary.Read Until Regexp               regexp=(NTL = 1134500000|NUMERO NAO ASSOCIADO)
+
+Disparar Chamadas SIPp
+    [Arguments]    ${IP_DESTINO}  ${IP_ORIGEM}  ${NUM_A}  ${NUM_B} 
+
+    #1. Abre a conexão com o SIPp
+    Abrir SSH remoto                     ${IP_ORIGEM}  ${USER_SIPP}  ${PASS_SIPP}
+
+    #2. Faz o upload do UAC.xml
+    SSHLibrary.Put File    uac/uac_as.xml    /tmp/uac_as.xml
+
+    #3. Monta e executa o script de chamada
+    ${comando}=   Set Variable    sipp ${IP_DESTINO} -sf /tmp/uac_as.xml -s ${NUM_B} -key NUM_A ${NUM_A} -i ${IP_ORIGEM} -m 1
+    ${saida}=     SSHLibrary.Execute Command    ${comando}
+
+    Log    ${saida}
