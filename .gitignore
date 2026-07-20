@@ -1,0 +1,17 @@
+# .gitignore
+
+#Ambiente virtual do python
+ambiente_telnet/
+
+#Arquivo de credenciais
+local_env.py
+
+#Logs e relatóriso do Robot Framework
+log.html
+report.html
+output.xml
+*.png
+
+#Cache do python
+__pycache__/
+*.pyc
