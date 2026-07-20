@@ -112,7 +112,7 @@ Limpar ambiente
 Configuracao CTPE
     [Arguments]    ${NTL}  ${TBR}  ${FAR}  ${RCC}  ${CRE}
     SSHLibrary.Write Bare                      CNTLDS:ISV=cct_ctpe,NTL="${NTL}",TBR=${TBR},FAR=${FAR},RCC=${RCC},CRE=${CRE};
-    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO JA ASSOCIADO)
+    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO NAO ASSOCIADO)
     SSHLibrary.Read Until                      expected=<
     SSHLibrary.Write Bare                      INTLDS:ISV=cct_ctpe,PDI="${NTL}";
     SSHLibrary.Read Until                      expected=NTL = ${NTL}
@@ -120,6 +120,5 @@ Configuracao CTPE
 
 Desprogramar servico 1
     [Arguments]    ${ISV}  ${NTL}
-    Telnet.Write                       SNTLDS:ISV={ISV},NTL="${NTL}";
-    Telnet.Read Until                  expected=SUPRESSAO DE NUMERO TELEFONICO
-    Telnet.Read Until                  expected=<
+    SSHLibrary.Write Bare                      SNTLDS:ISV=${ISV},NTL="${NTL}";
+    SSHLibrary.Read Until Regexp               regexp=(NTL = 1134500000|NUMERO NAO ASSOCIADO)

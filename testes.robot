@@ -19,6 +19,6 @@ caso1_bloqueio_ctpe
  #   Abrir SSH remoto                     ${SIPP}  ${USER_SIPP}  ${PASS_SIPP}
  #   Executar cenario A                   uac_603.xml  ${IP_SIPP}  ${DEST}  db60.csv  1 
  #   Conferir resultado                   0
- #   Desprogramar serviços                1130002000    TNR
+    Desprogramar servico 1                cct_ctpe    1134500000
  #   Remover serviços                     1130002000    TNR
     Fechar SSH remoto
