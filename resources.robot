@@ -9,8 +9,8 @@ Variables  local_env.py
 *** Keywords ***
 
 Conectar Equipamento Yocto
-    [Arguments]               ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}
-    Abrir SSH remoto          ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}
+    [Arguments]               ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  ${NOME_ALIAS}
+    Abrir SSH remoto          ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
     SSHLibrary.Write          telnet -d localhost
     Log  message=Abrindo conexão com ${IP_EQ}
     Log  message=Abrindo CHM não formatado
@@ -35,9 +35,9 @@ Fechar conexao telnet
     Log  message=Conexão fechada com sucesso
 
 Abrir SSH remoto
-    [Arguments]                   ${IP}  ${USER}  ${PASS}
-    Log  message=Abrindo conexão SSH com ${IP}
-    SSHLibrary.Open Connection    ${IP}  term_type=ansi  prompt=REGEXP:.*[$#]
+    [Arguments]                   ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
+    Log  message=Abrindo conexão SSH com ${IP} (Alias: ${NOME_ALIAS})
+    SSHLibrary.Open Connection    ${IP}  term_type=ansi  alias=${NOME_ALIAS}  prompt=REGEXP:.*[$#]
     SSHLibrary.Login              ${USER}  ${PASS}
 
     Log  message=Padronizando o terminal
@@ -63,8 +63,8 @@ Mudar de diretorio
     Log  ${output}                                      
 
 Preparar ambiente basico
-    [Arguments]          ${IP}  ${USER}  ${PASS}  ${DIR}
-    Abrir SSH remoto     ${IP}  ${USER}  ${PASS}
+    [Arguments]          ${IP}  ${USER}  ${PASS}  ${DIR}  ${NOME_ALIAS}
+    Abrir SSH remoto     ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
     Mudar de diretorio   ${DIR}
 
 Terminar ambiente
@@ -72,7 +72,7 @@ Terminar ambiente
     Fechar SSH remoto
 
 Executar cenario A
-    [Arguments]                      ${CENARIO}  ${IP}  ${DEST}  ${ARQ}  ${QUANT}  ${DUR}=3000  #${TIPO}  
+    [Arguments]                      ${CENARIO}  ${IP}  ${DEST}  ${ARQ}  ${QUANT}  ${TIPO}  ${DUR}=3000  
     SSHLibrary.Write                 ./runner.sh ${CENARIO} ${IP} ${DEST} ${ARQ} ${QUANT} ${DUR}
     ${output}  SSHLibrary.Read Until Prompt
     Log                              ${output}
@@ -121,14 +121,15 @@ Configuracao CTPE
 
 Desprogramar servico 1
     [Arguments]    ${ISV}  ${NTL}
+    SSHLibrary.Switch Connection               CONEXAO_CHM
     SSHLibrary.Write Bare                      SNTLDS:ISV=${ISV},NTL="${NTL}";
-    SSHLibrary.Read Until Regexp               regexp=(NTL = 1134500000|NUMERO NAO ASSOCIADO)
+    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO NAO ASSOCIADO)
 
 Disparar Chamadas SIPp
-    [Arguments]    ${IP_DESTINO}  ${IP_ORIGEM}  ${NUM_A}  ${NUM_B} 
+    [Arguments]    ${IP_DESTINO}  ${IP_ORIGEM}  ${NUM_A}  ${NUM_B}
 
     #1. Abre a conexão com o SIPp
-    Abrir SSH remoto                     ${IP_ORIGEM}  ${USER_SIPP}  ${PASS_SIPP}
+    Abrir SSH remoto                     ${IP_ORIGEM}  ${USER_SIPP}  ${PASS_SIPP}  CONEXAO_SIPP
 
     #2. Faz o upload do UAC.xml
     SSHLibrary.Put File    uac/uac_as.xml    /tmp/uac_as.xml
@@ -138,3 +139,4 @@ Disparar Chamadas SIPp
     ${saida}=     SSHLibrary.Execute Command    ${comando}
 
     Log    ${saida}
+    SSHLibrary.close Connection    

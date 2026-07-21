@@ -1,5 +1,8 @@
 # .gitignore
 
+#UAC's do SIPp
+uac/
+
 #Ambiente virtual do python
 ambiente_telnet/
 

@@ -14,12 +14,13 @@ Variables        local_env.py
 caso1_bloqueio_ctpe
     [Documentation]                      Teste ctpe
     [Tags]                               servicos       
-    Conectar Equipamento Yocto           ${EQ}  matuser  matuser2  ${USER_EQ}  ${PASS_EQ}
-    #Configuracao CTPE                    1134500000  90  aplica  nao  1
+    Conectar Equipamento Yocto           ${EQ}  matuser  matuser2  ${USER_EQ}  ${PASS_EQ}  CONEXAO_CHM
+    Configuracao CTPE                    1134500000  90  aplica  nao  1
  #   Abrir SSH remoto                     ${SIPP}  ${USER_SIPP}  ${PASS_SIPP}
  #   Executar cenario A                   uac_603.xml  ${IP_SIPP}  ${DEST}  db60.csv  1 
  #   Conferir resultado                   0
-    #Desprogramar servico 1                cct_ctpe    1134500000
+    Disparar Chamadas SIPp               ${DEST}  ${IP_SIPP}  NUM_A=1134500000  NUM_B=B33314222
+
+    Desprogramar servico 1               cct_ctpe    1134500000
  #   Remover serviços                     1130002000    TNR
-    Disparar Chamadas SIPp                IP_DESTINO=10.20.203.101  IP_ORIGEM=10.20.158.51  NUM_A=1134500000  NUM_B=B33314222
     Fechar SSH remoto
