@@ -11,6 +11,10 @@ Variables  local_env.py
 Conectar Equipamento Yocto
     [Arguments]               ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  ${NOME_ALIAS}
     Abrir SSH remoto          ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
+    Conectar CHM              ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
+
+Conectar CHM 
+    [Arguments]                   ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
     SSHLibrary.Write          telnet -d localhost
     Log  message=Abrindo conexão com ${IP_EQ}
     Log  message=Abrindo CHM não formatado
@@ -29,6 +33,15 @@ Conectar Equipamento Yocto
     SSHLibrary.Write              text=${USUARIOCHM}\r${SENHACHM}\r
     SSHLibrary.Read Until         expected=<
     Log  message=Conexão realizada com sucesso
+    
+
+Conectar MPG
+    [Arguments]                   ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
+    Abrir SSH remoto              ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
+    SSHLibrary.Write              ssh ${MPG}
+    SSHLibrary.Read Until         expected=password:
+    SSHLibrary.Write              ${PASS_MPG}
+    Log  message=Abrindo conexão com ${IP_EQ}
 
 Fechar conexao telnet
     Telnet.Close Connection
