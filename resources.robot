@@ -9,38 +9,38 @@ Variables  local_env.py
 *** Keywords ***
 
 Conectar Equipamento Yocto
-    [Arguments]               ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  ${NOME_ALIAS}
-    Abrir SSH remoto          ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
-    Conectar CHM              ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
+    [Arguments]                       ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  ${NOME_ALIAS}
+    Abrir SSH remoto                  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
+    Conectar CHM                      ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
 
 Conectar CHM 
-    [Arguments]                   ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
-    SSHLibrary.Write          telnet -d localhost
+    [Arguments]                       ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
+    SSHLibrary.Write                  telnet -d localhost
     Log  message=Abrindo conexão com ${IP_EQ}
     Log  message=Abrindo CHM não formatado
-    SSHLibrary.Read Until         expected=Opcao:
-    SSHLibrary.Write              2
-    SSHLibrary.Read Until         expected=Opcao:
-    SSHLibrary.Write              F
+    SSHLibrary.Read Until             expected=Opcao:
+    SSHLibrary.Write                  2
+    SSHLibrary.Read Until             expected=Opcao:
+    SSHLibrary.Write                  F
     Log  message=Aguardando alocação do terminal 
 #    Set Timeout               30 seconds
-    SSHLibrary.Read Until         expected=Terminal livre
+    SSHLibrary.Read Until             expected=Terminal livre
 
     Log  message=Realizando autenticação
-    SSHLibrary.Write              \t
+    SSHLibrary.Write                  \t
 #    Set Timeout               10 seconds
-    SSHLibrary.Read Until         expected=USUARIO = 
-    SSHLibrary.Write              text=${USUARIOCHM}\r${SENHACHM}\r
-    SSHLibrary.Read Until         expected=<
+    SSHLibrary.Read Until             expected=USUARIO = 
+    SSHLibrary.Write                  text=${USUARIOCHM}\r${SENHACHM}\r
+    SSHLibrary.Read Until             expected=<
     Log  message=Conexão realizada com sucesso
     
 
 Conectar MPG
-    [Arguments]                   ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
-    Abrir SSH remoto              ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
-    SSHLibrary.Write              ssh ${MPG}
-    SSHLibrary.Read Until         expected=password:
-    SSHLibrary.Write              ${PASS_MPG}
+    [Arguments]                       ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
+    Abrir SSH remoto                  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
+    SSHLibrary.Write                  ssh ${MPG}
+    SSHLibrary.Read Until             expected=password:
+    SSHLibrary.Write                  ${PASS_MPG}
     Log  message=Abrindo conexão com ${IP_EQ}
 
 Fechar conexao telnet
@@ -48,16 +48,16 @@ Fechar conexao telnet
     Log  message=Conexão fechada com sucesso
 
 Abrir SSH remoto
-    [Arguments]                   ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
+    [Arguments]                       ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
     Log  message=Abrindo conexão SSH com ${IP} (Alias: ${NOME_ALIAS})
-    SSHLibrary.Open Connection    ${IP}  term_type=ansi  alias=${NOME_ALIAS}  prompt=REGEXP:.*[$#]
-    SSHLibrary.Login              ${USER}  ${PASS}
+    SSHLibrary.Open Connection        ${IP}  term_type=ansi  alias=${NOME_ALIAS}  prompt=REGEXP:.*[$#]
+    SSHLibrary.Login                  ${USER}  ${PASS}
 
     Log  message=Padronizando o terminal
-    SSHLibrary.Write              ~/robot_bash.sh
+    SSHLibrary.Write                  ~/robot_bash.sh
     SSHLibrary.Read Until Prompt
 
-    Set Client Configuration      timeout=40s
+    Set Client Configuration          timeout=40s
     Log  message=Conexão realizada com sucesso
 
 Fechar SSH remoto
@@ -69,52 +69,52 @@ Persistir shell
     Log  message=Persistindo o shell
 
 Mudar de diretorio
-    [Arguments]                      ${DIR}
-    SSHLibrary.Write     cd ${DIR}
+    [Arguments]                       ${DIR}
+    SSHLibrary.Write                  cd ${DIR}
     ${output}  SSHLibrary.Read Until Prompt
     Log  message=Diretório alterado para ${DIR}
     Log  ${output}                                      
 
 Preparar ambiente basico
-    [Arguments]          ${IP}  ${USER}  ${PASS}  ${DIR}  ${NOME_ALIAS}
-    Abrir SSH remoto     ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
-    Mudar de diretorio   ${DIR}
+    [Arguments]                       ${IP}  ${USER}  ${PASS}  ${DIR}  ${NOME_ALIAS}
+    Abrir SSH remoto                  ${IP}  ${USER}  ${PASS}  ${NOME_ALIAS}
+    Mudar de diretorio                ${DIR}
 
 Terminar ambiente
     Limpar ambiente
     Fechar SSH remoto
 
 Executar cenario A
-    [Arguments]                      ${CENARIO}  ${IP}  ${DEST}  ${ARQ}  ${QUANT}  ${TIPO}  ${DUR}=3000  
-    SSHLibrary.Write                 ./runner.sh ${CENARIO} ${IP} ${DEST} ${ARQ} ${QUANT} ${DUR}
+    [Arguments]                       ${CENARIO}  ${IP}  ${DEST}  ${ARQ}  ${QUANT}  ${TIPO}  ${DUR}=3000  
+    SSHLibrary.Write                  ./runner.sh ${CENARIO} ${IP} ${DEST} ${ARQ} ${QUANT} ${DUR}
     ${output}  SSHLibrary.Read Until Prompt
-    Log                              ${output}
+    Log                               ${output}
 
 Executar cenario B
-    [Arguments]                      ${CENARIO}  ${IP}  ${ARQ}  ${QUANT}=1 
-    SSHLibrary.Write                 ./sipp -sf ${CENARIO} -i ${IP} -inf ${ARQ} -aa -bg -trace_err -trace_msg -trace_logs -m ${QUANT} | grep -oP "PID=\[[0-9]+\]" | grep -oP "[0-9]+" > uas.pid
+    [Arguments]                       ${CENARIO}  ${IP}  ${ARQ}  ${QUANT}=1 
+    SSHLibrary.Write                  ./sipp -sf ${CENARIO} -i ${IP} -inf ${ARQ} -aa -bg -trace_err -trace_msg -trace_logs -m ${QUANT} | grep -oP "PID=\[[0-9]+\]" | grep -oP "[0-9]+" > uas.pid
     ${output}  SSHLibrary.Read Until Prompt
-    Log                              ${output}
+    Log                               ${output}
  
 Executar chamada
-    [Arguments]                     ${CENARIO_B}  ${IP_B}  ${CENARIO_A}  ${IP_A}  ${DEST}  ${ARQ}  ${TIPO}  ${QUANT_A}=1  ${QUANT_B}=1  ${DUR}=3000  ${RES}=0  ${CSCSF}=ericsson
-    SSHLibrary.Write                (echo "SEQUENTIAL"; grep ${TIPO} ${ARQ}) > tmp.csv
-    Executar cenario B              ${CENARIO_B}  ${IP_B}  tmp.csv  ${QUANT_B}
-    Executar cenario A              ${CENARIO_A}  ${IP_A}  ${DEST}  tmp.csv  ${QUANT_A}  ${TIPO}  ${DUR}  
-    Conferir resultado              ${RES}
+    [Arguments]                       ${CENARIO_B}  ${IP_B}  ${CENARIO_A}  ${IP_A}  ${DEST}  ${ARQ}  ${TIPO}  ${QUANT_A}=1  ${QUANT_B}=1  ${DUR}=3000  ${RES}=0  ${CSCSF}=ericsson
+    SSHLibrary.Write                  (echo "SEQUENTIAL"; grep ${TIPO} ${ARQ}) > tmp.csv
+    Executar cenario B                ${CENARIO_B}  ${IP_B}  tmp.csv  ${QUANT_B}
+    Executar cenario A                ${CENARIO_A}  ${IP_A}  ${DEST}  tmp.csv  ${QUANT_A}  ${TIPO}  ${DUR}  
+    Conferir resultado                ${RES}
 
 Conferir resultado
-    [Arguments]    ${RES}
+    [Arguments]                       ${RES}
     SSHLibrary.Write    echo $?
     ${output}=    SSHLibrary.Read Until Prompt
-    ${output}=    Strip String    ${output}
-    @{lines}=    Split To Lines    ${output}
-    ${rc}=    Set Variable    ${lines}[0]
-    ${rc}=    Replace String    ${rc}  \n  ${EMPTY}
-    ${rc}=    Replace String    ${rc}  \r  ${EMPTY}
-    ${rc}=    Strip String      ${rc}
-    Log    RC encontrado: |${rc}|
-    Should Be Equal As Strings    ${RES}    ${rc}
+    ${output}=    Strip String        ${output}
+    @{lines}=    Split To Lines       ${output}
+    ${rc}=    Set Variable            ${lines}[0]
+    ${rc}=    Replace String          ${rc}  \n  ${EMPTY}
+    ${rc}=    Replace String          ${rc}  \r  ${EMPTY}
+    ${rc}=    Strip String            ${rc}
+    Log    RC encontrado:            |${rc}|
+    Should Be Equal As Strings        ${RES}    ${rc}
 
 Limpar ambiente
     SSHLibrary.Write    kill -9 $(cat uas.pid)
@@ -124,40 +124,40 @@ Limpar ambiente
     SSHLibrary.Read Until Prompt
 
 Configuracao CTPE
-    [Arguments]    ${NTL}  ${TBR}  ${FAR}  ${RCC}  ${CRE}
-    SSHLibrary.Write Bare                      CNTLDS:ISV=cct_ctpe,NTL="${NTL}",TBR=${TBR},FAR=${FAR},RCC=${RCC},CRE=${CRE};
-    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO JA ASSOCIADO)
-    SSHLibrary.Read Until                      expected=<
-    SSHLibrary.Write Bare                      INTLDS:ISV=cct_ctpe,PDI="${NTL}";
-    SSHLibrary.Read Until                      expected=NTL = ${NTL}
-    SSHLibrary.Read Until                      expected=<
+    [Arguments]                       ${NTL}  ${TBR}  ${FAR}  ${RCC}  ${CRE}
+    SSHLibrary.Write Bare             CNTLDS:ISV=cct_ctpe,NTL="${NTL}",TBR=${TBR},FAR=${FAR},RCC=${RCC},CRE=${CRE};
+    SSHLibrary.Read Until Regexp      regexp=(NTL = ${NTL}|NUMERO JA ASSOCIADO)
+    SSHLibrary.Read Until             expected=<
+    SSHLibrary.Write Bare             INTLDS:ISV=cct_ctpe,PDI="${NTL}";
+    SSHLibrary.Read Until             expected=NTL = ${NTL}
+    SSHLibrary.Read Until             expected=<
 
 Configuracao Apl Rota
-    [Arguments]  ${APL}  ${PFR}  ${ODE}
-    SSHLibrary.Switch Connection               CONEXAO_CHM
-    SSHLibrary.Write Bare                      ASRVDS:ISV=${APL},PFR=${PFR},ODE=${ODE};
-    SSHLibrary.Read Until Regexp               regexp=(ISV = ${APL}|SERVICO JA ASSOCIADO A PERFIL)
+    [Arguments]                       ${APL}  ${PFR}  ${ODE}
+    SSHLibrary.Switch Connection      CONEXAO_CHM
+    SSHLibrary.Write Bare             ASRVDS:ISV=${APL},PFR=${PFR},ODE=${ODE};
+    SSHLibrary.Read Until Regexp      regexp=(ISV = ${APL}|SERVICO JA ASSOCIADO A PERFIL)
 
 Desconfiguracao Apl Rota
-    [Arguments]  ${APL}  ${PFR}
-    SSHLibrary.Switch Connection               CONEXAO_CHM
-    SSHLibrary.Write Bare                      DSRVDS:ISV=${APL},PFR=${PFR};
-    SSHLibrary.Read Until Regexp               regexp=(ISV = ${APL}|SERVICO NAO ASSOCIADO A PERFIL)
+    [Arguments]                       ${APL}  ${PFR}
+    SSHLibrary.Switch Connection      CONEXAO_CHM
+    SSHLibrary.Write Bare             DSRVDS:ISV=${APL},PFR=${PFR};
+    SSHLibrary.Read Until Regexp      regexp=(ISV = ${APL}|SERVICO NAO ASSOCIADO A PERFIL)
 
 Desprogramar servico 1
-    [Arguments]    ${ISV}  ${NTL}
-    SSHLibrary.Switch Connection               CONEXAO_CHM
-    SSHLibrary.Write Bare                      SNTLDS:ISV=${ISV},NTL="${NTL}";
-    SSHLibrary.Read Until Regexp               regexp=(NTL = ${NTL}|NUMERO NAO ASSOCIADO)
+    [Arguments]                       ${ISV}  ${NTL}
+    SSHLibrary.Switch Connection      CONEXAO_CHM
+    SSHLibrary.Write Bare             SNTLDS:ISV=${ISV},NTL="${NTL}";
+    SSHLibrary.Read Until Regexp      regexp=(NTL = ${NTL}|NUMERO NAO ASSOCIADO)
 
 Disparar Chamadas SIPp
-    [Arguments]    ${IP_DESTINO}  ${IP_ORIGEM}  ${NUM_A}  ${NUM_B}
+    [Arguments]                       ${IP_DESTINO}  ${IP_ORIGEM}  ${NUM_A}  ${NUM_B}
 
     #1. Abre a conexão com o SIPp
-    Abrir SSH remoto                     ${IP_ORIGEM}  ${USER_SIPP}  ${PASS_SIPP}  CONEXAO_SIPP
+    Abrir SSH remoto                  ${IP_ORIGEM}  ${USER_SIPP}  ${PASS_SIPP}  CONEXAO_SIPP
 
     #2. Faz o upload do UAC.xml
-    SSHLibrary.Put File    uac/uac_as.xml    /tmp/uac_as.xml
+    SSHLibrary.Put File               uac/uac_as.xml    /tmp/uac_as.xml
 
     #3. Monta e executa o script de chamada
     ${comando}=   Set Variable    sipp ${IP_DESTINO} -sf /tmp/uac_as.xml -s ${NUM_B} -key NUM_A ${NUM_A} -i ${IP_ORIGEM} -m 1
