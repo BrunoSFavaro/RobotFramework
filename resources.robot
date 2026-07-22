@@ -119,6 +119,18 @@ Configuracao CTPE
     SSHLibrary.Read Until                      expected=NTL = ${NTL}
     SSHLibrary.Read Until                      expected=<
 
+Configuracao Apl Rota
+    [Arguments]  ${APL}  ${PFR}  ${ODE}
+    SSHLibrary.Switch Connection               CONEXAO_CHM
+    SSHLibrary.Write Bare                      ASRVDS:ISV=${APL},PFR=${PFR},ODE=${ODE};
+    SSHLibrary.Read Until Regexp               regexp=(ISV = ${APL}|SERVICO JA ASSOCIADO A PERFIL)
+
+Desconfiguracao Apl Rota
+    [Arguments]  ${APL}  ${PFR}
+    SSHLibrary.Switch Connection               CONEXAO_CHM
+    SSHLibrary.Write Bare                      DSRVDS:ISV=${APL},PFR=${PFR};
+    SSHLibrary.Read Until Regexp               regexp=(ISV = ${APL}|SERVICO NAO ASSOCIADO A PERFIL)
+
 Desprogramar servico 1
     [Arguments]    ${ISV}  ${NTL}
     SSHLibrary.Switch Connection               CONEXAO_CHM
