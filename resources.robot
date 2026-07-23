@@ -11,13 +11,13 @@ Variables  local_env.py
 Conectar Equipamento Yocto
     [Arguments]                       ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  ${NOME_ALIAS}
     Abrir SSH remoto                  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
-    Conectar CHM                      ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
 
 Conectar CHM 
-    [Arguments]                       ${USUARIOCHM}  ${SENHACHM}  ${IP_EQ}
+    [Arguments]                       ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM} 
+    Conectar Equipamento Yocto        ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${USUARIOCHM}  ${SENHACHM}  CONEXAO_CHM
     SSHLibrary.Write                  telnet -d localhost
     Log  message=Abrindo conexão com ${IP_EQ}
-    Log  message=Abrindo CHM não formatado
+    Log  message=Abrindo CHM formatado
     SSHLibrary.Read Until             expected=Opcao:
     SSHLibrary.Write                  2
     SSHLibrary.Read Until             expected=Opcao:
@@ -38,10 +38,14 @@ Conectar CHM
 Conectar MPG
     [Arguments]                       ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
     Abrir SSH remoto                  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${NOME_ALIAS}
-    SSHLibrary.Write                  ssh ${MPG}
+    SSHLibrary.Write                  su -
+    SSHLibrary.Read Until             expected=Password:
+    SSHLibrary.Write                  ${PASS_SIPP}
+    SSHLibrary.Read Until             expected=#
+    SSHLibrary.Write                  ssh pro_${MPG}
     SSHLibrary.Read Until             expected=password:
     SSHLibrary.Write                  ${PASS_MPG}
-    Log  message=Abrindo conexão com ${IP_EQ}
+    Log  message=Abrindo conexão com Processador ${MPG}
 
 Fechar conexao telnet
     Telnet.Close Connection
@@ -143,6 +147,38 @@ Desconfiguracao Apl Rota
     SSHLibrary.Switch Connection      CONEXAO_CHM
     SSHLibrary.Write Bare             DSRVDS:ISV=${APL},PFR=${PFR};
     SSHLibrary.Read Until Regexp      regexp=(ISV = ${APL}|SERVICO NAO ASSOCIADO A PERFIL)
+
+Validar Log do BI
+    [Arguments]                       ${BI}  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
+    Conectar MPG                      ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  CONEXAO_MPG
+    SSHLibrary.Write                  cd /prg
+    SSHLibrary.Read Until Regexp      regexp=prg#
+    SSHLibrary.Write                  ./tudo.sh ${BI}
+    ${saida}=    SSHLibrary.Read Until Regexp      regexp=@
+    ${pulos}=                         Set Variable  0
+
+    IF  'ERRO' in '''${saida}'''
+        ${pulos}=    Set Variable  3
+    ELSE IF  'WARN' in '''${saida}'''
+        ${pulos}=    Set Variable  2
+    ELSE IF  'INFO' in '''${saida}'''
+        ${pulos}=    Set Variable  1
+    ELSE IF  'DESB' in '''${saida}'''
+        ${pulos}=    Set Variable  4
+    END
+
+    IF  ${pulos} > 0
+        SSHLibrary.Write                  ./alt_nivel_print.sh ${BI} ${pulos}
+        SSHLibrary.Read Until Prompt
+    END
+
+    ${imprimir_desligado}=  Run Keyword And Return Status  Should Contain   ${saida}  NAO vai imprimir
+    IF  ${imprimir_desligado}
+        SSHLibrary.Write                  ./tudo.sh ${BI}
+        SSHLibrary.Read Until Prompt
+    END
+    Log  message=O BI ${BI} foi configurado para DEBG com impressão na tela usando ${pulos} pulos!
+
 
 Desprogramar servico 1
     [Arguments]                       ${ISV}  ${NTL}

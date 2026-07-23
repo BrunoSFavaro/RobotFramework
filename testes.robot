@@ -13,10 +13,11 @@ Resource         resources.robot
 caso1_bloqueio_ctpe
     [Documentation]                      Teste ctpe
     [Tags]                               servicos       
-    Conectar Equipamento Yocto           ${EQ}  matuser  matuser2  ${USER_EQ}  ${PASS_EQ}  CONEXAO_CHM
+    Conectar CHM                         ${EQ}  matuser  matuser2  ${USER_EQ}  ${PASS_EQ}
     Configuracao CTPE                    1134500000  90  aplica  nao  1
     Configuracao Apl Rota                CCT_CTPE    3   1
     Disparar Chamadas SIPp               ${DEST}  ${IP_SIPP}  NUM_A=1134500000  NUM_B=F33314222
     Desprogramar servico 1               CCT_CTPE    1134500000
     Desconfiguracao Apl Rota             CCT_CTPE    3
+    Validar Log do BI                    caabs  ${EQ}  ${USER_YOCTO}  ${PASS_YOCTO}  ${MPG}  ${PASS_MPG}  CONEXAO_MPG
     Fechar SSH remoto
