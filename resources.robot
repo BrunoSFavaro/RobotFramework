@@ -148,7 +148,7 @@ Desconfiguracao Apl Rota
     SSHLibrary.Write Bare             DSRVDS:ISV=${APL},PFR=${PFR};
     SSHLibrary.Read Until Regexp      regexp=(ISV = ${APL}|SERVICO NAO ASSOCIADO A PERFIL)
 
-Validar Log do BI
+Ativar Log do BI
     [Arguments]                       ${BI}  ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  ${NOME_ALIAS}
     Conectar MPG                      ${IP_EQ}  ${USER_SSH}  ${PASS_SSH}  ${MPG}  ${PASS_MPG}  CONEXAO_MPG
     SSHLibrary.Write                  cd /prg
@@ -179,6 +179,13 @@ Validar Log do BI
     END
     Log  message=O BI ${BI} foi configurado para DEBG com impressão na tela usando ${pulos} pulos!
 
+Validar Log do BI
+    [Arguments]
+    SSHLibrary.Switch Connection      CONEXAO_MPG
+    Sleep                             2s
+    ${log_capturado}=                 SSHLibrary.Read
+    Should Contain                    ${log_capturado}  AplicacaoCctCtpe vai bloquear chamada com CRE  msg=Chamada não bloqueada
+    Log                               O log do BI foi validado com sucesso!
 
 Desprogramar servico 1
     [Arguments]                       ${ISV}  ${NTL}
